@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>PITBIT OS — Dashboard</title>
+<style>
+@font-face { font-family: 'Inter'; src: url('../../fonts/Inter-Regular.otf') format('opentype'); font-weight: 400; }
+@font-face { font-family: 'Inter'; src: url('../../fonts/Inter-Medium.otf') format('opentype'); font-weight: 500; }
+@font-face { font-family: 'Inter'; src: url('../../fonts/Inter-SemiBold.otf') format('opentype'); font-weight: 600; }
+@font-face { font-family: 'Inter'; src: url('../../fonts/Inter-Bold.otf') format('opentype'); font-weight: 700; }
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg-base:    #0F172B;
+  --bg-surface: #1D293D;
+  --bg-raised:  #243347;
+  --glass:      rgba(119,127,139,0.18);
+  --border:     rgba(49,65,88,0.55);
+  --green:      #00BC7D;
+  --green-b:    #00D492;
+  --teal:       #037196;
+  --warn:       #F0B100;
+  --err:        #FB2C36;
+  --t1: #FFFFFF;
+  --t2: #90A1B9;
+  --t3: #CAD5E2;
+  --t4: #C3C5CA;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Inter', sans-serif;
+  background: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Window ── */
+.win {
+  width: 1280px;
+  height: 820px;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 32px 100px rgba(0,0,0,0.7);
+  display: flex;
+  flex-direction: column;
+}
+
+/* MacOS bar */
+.titlebar {
+  height: 34px;
+  background: #B0B4BB;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  gap: 7px;
+}
+.dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
+
+/* ── Header ── */
+.header {
+  height: 64px;
+  background: var(--bg-base);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  padding: 0 28px;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+}
+.logo { display: flex; align-items: center; gap: 10px; }
+.logo-mark { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.logo-mark svg { width: 36px; height: 36px; }
+.logo-name { font-size: 15px; font-weight: 700; color: var(--t1); line-height: 1.1; }
+.logo-sub  { font-size: 10px; color: rgba(255,255,255,0.55); line-height: 1.35; margin-top: 1px; }
+.hdr-icons { display: flex; gap: 8px; }
+.hdr-icon {
+  width: 36px; height: 36px; border-radius: 9px;
+  background: var(--glass); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+  transition: background .15s;
+}
+.hdr-icon:hover { background: rgba(119,127,139,0.32); }
+.hdr-icon svg { width: 17px; height: 17px; }
+
+/* ── Body ── */
+.body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  background: var(--bg-base);
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  width: 248px;
+  flex-shrink: 0;
+  background: var(--bg-base);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 20px 14px;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.scan-btn {
+  display: flex; align-items: center; gap: 9px;
+  background: var(--glass); border: 1px solid var(--border);
+  border-radius: 11px; padding: 11px 14px;
+  color: var(--t1); font-size: 13px; font-weight: 700;
+  cursor: pointer; font-family: 'Inter', sans-serif;
+  flex-shrink: 0;
+  transition: background .15s;
+}
+.scan-btn:hover { background: rgba(119,127,139,0.3); }
+.scan-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+.stat-card {
+  background: var(--bg-surface); border-radius: 10px;
+  padding: 11px 14px; cursor: pointer; flex-shrink: 0;
+  transition: background .15s;
+}
+.stat-card:hover { background: var(--bg-raised); }
+.stat-lbl { font-size: 11px; color: var(--t2); font-weight: 500; }
+.stat-val { font-size: 20px; font-weight: 700; color: var(--t1); line-height: 1.15; margin-top: 1px; }
+.stat-val.accent { color: var(--green-b); font-size: 16px; }
+
+.sb-spacer { flex: 1; }
+
+.sb-title { font-size: 12px; font-weight: 700; color: var(--t1); padding: 0 2px; margin-bottom: 6px; flex-shrink: 0; }
+
+.nav-btn {
+  width: 100%; display: flex; align-items: center; gap: 8px;
+  background: var(--bg-surface); border-radius: 9px;
+  padding: 10px 12px; color: var(--t3); font-size: 12px;
+  font-family: 'Inter', sans-serif; cursor: pointer; border: none;
+  flex-shrink: 0; margin-bottom: 6px;
+  transition: background .15s, color .15s;
+}
+.nav-btn:hover { background: var(--bg-raised); color: var(--t1); }
+.nav-btn svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+.ver-card {
+  background: var(--bg-surface); border-radius: 10px;
+  padding: 11px 13px; flex-shrink: 0;
+}
+.ver-lbl  { font-size: 10px; color: var(--t2); }
+.ver-val  { font-size: 12px; font-weight: 700; color: var(--t1); margin: 3px 0 5px; }
+.ver-desc { font-size: 10px; color: var(--t4); line-height: 1.5; }
+.ver-upd  { color: var(--green-b); font-size: 10px; font-weight: 700; cursor: pointer; margin-top: 6px; display: block; }
+
+/* ── Content ── */
+.content {
+  flex: 1;
+  background: linear-gradient(180deg, #037196 0%, #0F172B 72%);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+
+.content-inner {
+  flex: 1; overflow-y: auto; padding: 24px 28px 28px;
+  display: flex; flex-direction: column; gap: 20px;
+}
+.content-inner::-webkit-scrollbar { width: 5px; }
+.content-inner::-webkit-scrollbar-thumb { background: rgba(144,161,185,0.25); border-radius: 3px; }
+
+/* Section header */
+.sec-hdr {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.sec-title { font-size: 17px; font-weight: 700; color: var(--t1); }
+
+.btn-sec {
+  display: inline-flex; align-items: center; gap: 7px;
+  height: 38px; padding: 0 18px;
+  background: var(--bg-surface); border-radius: 11px;
+  color: var(--t1); font-size: 13px; font-weight: 600;
+  font-family: 'Inter', sans-serif; cursor: pointer; border: none;
+  transition: background .15s;
+}
+.btn-sec:hover { background: var(--bg-raised); }
+.btn-sec svg { width: 15px; height: 15px; }
+
+/* Location cards grid */
+.loc-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.loc-card {
+  border-radius: 12px; overflow: hidden; cursor: pointer;
+  transition: transform .15s, box-shadow .15s;
+}
+.loc-card:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,0.3); }
+
+.lc-top {
+  background: var(--glass); backdrop-filter: blur(10px);
+  padding: 12px 12px 10px 36px; position: relative;
+  min-height: 68px; display: flex; flex-direction: column; justify-content: center;
+}
+.lc-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); }
+.lc-icon svg { width: 18px; height: 18px; }
+.lc-arrow { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); }
+.lc-arrow svg { width: 14px; height: 14px; stroke: rgba(255,255,255,0.4); }
+
+.lc-name { font-size: 13px; font-weight: 700; color: var(--t1); line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lc-status { display: flex; align-items: center; gap: 5px; margin-top: 3px; }
+.lc-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.lc-status-txt { font-size: 10px; color: var(--t4); font-weight: 500; }
+
+.lc-bot {
+  background: var(--bg-surface);
+  padding: 12px 12px 12px 36px;
+}
+.lc-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; }
+.lc-m-lbl { font-size: 10px; color: var(--t2); font-weight: 500; }
+.lc-m-val { font-size: 13px; font-weight: 700; color: var(--t1); margin-top: 1px; }
+.lc-m-val.warn { color: var(--warn); }
+.lc-m-val.err  { color: var(--err); }
+
+/* History panel */
+.hist-panel {
+  background: var(--glass); border: 1px solid rgba(49,65,88,0.45);
+  border-radius: 14px; overflow: hidden; backdrop-filter: blur(8px);
+}
+.hist-hdr {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 18px;
+}
+.hist-title {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 14px; font-weight: 700; color: var(--t1);
+}
+.hist-title svg { width: 17px; height: 17px; }
+.hist-showall { font-size: 12px; font-weight: 700; color: var(--green-b); cursor: pointer; }
+
+.hist-rows { padding: 0 10px 10px; display: flex; flex-direction: column; gap: 6px; }
+
+.hist-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 9px;
+}
+.hist-row.hi { background: rgba(3,113,150,0.3); }
+.hist-row.lo { background: var(--bg-surface); }
+
+.hi-icon {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.hi-icon svg { width: 15px; height: 15px; }
+.hi-info { flex: 1; }
+.hi-name { font-size: 12px; font-weight: 700; color: var(--t1); }
+.hi-sub  { font-size: 10px; color: var(--t2); margin-top: 1px; }
+.hi-right { text-align: right; }
+.hi-badge {
+  display: inline-flex; align-items: center;
+  padding: 2px 7px; border-radius: 5px;
+  font-size: 11px; font-weight: 700; margin-bottom: 2px;
+}
+.hi-up   { background: rgba(0,212,146,0.14); color: var(--green-b); }
+.hi-down { background: rgba(251,44,54,0.14); color: var(--err); }
+.hi-time { font-size: 10px; color: var(--t2); }
+</style>
+</head>
+<body>
+
+<div class="win">
+
+  <!-- MacOS bar -->
+  <div class="titlebar">
+    <div class="dot" style="background:#FF5F57"></div>
+    <div class="dot" style="background:#FFBD2E"></div>
+    <div class="dot" style="background:#28CA41"></div>
+  </div>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="logo">
+      <!-- Inline PITBIT logo mark (simplified white paths) -->
+      <div class="logo-mark">
+        <svg viewBox="0 0 1052.2 1052.8" xmlns="http://www.w3.org/2000/svg">
+          <path fill="#fff" d="M358.8,245.2c0,0,0,1.5,0,1.6.1.5,0,0,0,0,2.4,7.8,2.2,14.3,3.7,22.3,1.7,1.2,17.9-3.6,28.7-6.6l-32.3-17.3Z"/>
+          <path fill="#fff" d="M498,272c3.9,2.3,18.9,12.5,21.1,15.9,3.7,5.6,6.1,40.1,8.1,41.4h46.2c3-1,1.1-9.1,1.6-11.9h115v12h46.5l1.5-1.5v-78l-1.5-1.5h-46.5v12h-115c-.5-3.9,1.4-9.1-1.5-12h-52v-7.6l-46.2,21.2c11,1.7,15.2,5.8,22.6,10Z"/>
+          <path fill="#fff" d="M583.4,4.5l-37.4-3.1h-40c-91.8,3.8-176.3,31.3-251.1,76.7l62.7,37v85.9h0c4.2-5.9,8.6-12,12.8-17.2v-68.6l96.6-55.4,101.7,51.5-.2,45.3h45.1c3-3.2.9-8.9,1.5-13h32v58.5l33.9,32.1h62.1l34.9-33.1v-119.5c143.8,69.6,250.8,216.2,270.7,375.6,12.9,102.8-6.4,212.6-56.7,303-48,86.5-124.5,155-214.1,196.3v-166.5l-1.5-1.5h-58l-1.5,1.5v44.5h13v12h-115v-12h-47v-59h45.5c2.9-2.9,1-8.1,1.5-12h115v12h46.5l1.5-1.5v-78l-1.5-1.5h-46.5v12h-115c-.5-3.9,1.4-9.1-1.5-12h-45.5v-43c12.8,8.6,21.4,23,34.5,31h57.9l15.9-12.9,15.2,12.9,51.5-.4,34.9-33.1v-124l-1.5-1.5h-46.5v12h-115c-.5-3.9,1.4-9.1-1.5-12h-46.5v120c-11.3-4.3-18.9,6.5-28.8,9.7-16,5.2-29.2.5-42.2,14.7-4.3,4.7-11.9,14.4-8.7,20.8,5.9,11.8,31.3,16.7,43.3,17.7,3.1.3,13.8-.9,15,.9l2.5,43.6c0,1.6-.3,2.4-1.6,3.4-4.9,3.5-15.6,5.1-22.3,9.7-16.2,10.9-20.1,35.8-45.4,21.2-6-3.5-10.6-8-14.1-13.1l-48.6,31.4c1.2,4.5,2.9,8.9,5.4,13l46.8-27.6,99.4,58.2.3,67.4h47v-12h115v12h-13v44.5l1.5,1.5h49.5l-9,4.5c-43.7,18.2-86.8,32.5-133.7,39.5h0l42.3,25,.2,11.3c242.8-50.5,416.3-256.1,421.3-513.8,5.3-272.1-195.5-492.1-465.7-522.3Z"/>
+          <polygon fill="#fff" points="677.7 468.3 690.7 468.4 690.7 456.3 575.7 456.3 575.7 468.3 527.7 468.3 527.7 388.3 575.7 388.3 575.7 400.3 690.7 400.3 690.7 388.3 677.7 388.3 677.7 343.8 679.2 342.3 737.2 342.3 738.7 343.8 738.7 512.8 737.2 514.3 679.2 514.3 677.7 512.8 677.7 468.3"/>
+          <path fill="#fff" d="M285.8,334.3c-1.3-1.4,2.6-30.8,3.1-35.4,1.3-10.3,4.8-42.1,9.9-49.1,3.6-5,9.6-9.3,13.8-15.2,5.7-7.9,7.9-15.6,12.4-23.6,1.9-3.4,5.1-7.9,5.9-1.2,2.7,25.2,3.9,50.6,6.8,75.8l-46.8,46.2-5,2.5Z"/>
+          <path fill="#fff" d="M209.2,775.3l-.4-103.9-92-50.3-93.8,54.4c11.3,38.6,29.9,86.9,58.7,130l39.4,21.7,88.1-51.9Z"/>
+          <path fill="#fff" d="M104.4,591.3v-104.7l-93.3-59.4c-16.7,85.7-9.5,158.1,3.1,214.3l90.2-50.1Z"/>
+          <path fill="#fff" d="M208.3,303l-88.6-52.6-58.8,33.9c-9.5,18.2-21.3,42.2-32.6,76.7l2.8,45.7,87,52.1,90.2-50.7v-105.1Z"/>
+          <path fill="#fff" d="M221.9,276.4l63.6-40,7.2-12.1c10.8-10.5,2.7-1,11.7-12.8,3.1-4,0,0,3.7-5.2v-87.8l-61.1-35.6c-42.9,26-82.2,58.4-114.6,97.4l.5,45.1,88.9,50.8Z"/>
+          <path fill="#fff" d="M427.6,69.5l-87,50.5v55.6c2.1-2.5,5-4.8,6.9-6.8.7-.8,1.1-1.4,2.5-1.1,0,2,0,3.9,0,5.9.2,1,.2,2.1,0,3.3,0,.3,0,.6,0,.9,0,1.8-.2,3.5-.4,5.3,0,8.3.7,16.9-.5,25,0,.3.1.6.2.9,2.7,6.7,7.2,22.4,9.8,29.1l34.5,16.8c34-8.3,71.1-.2,72.4,0l53.1-24v-113.1l-91.7-48.1Z"/>
+        </svg>
+      </div>
+      <div>
+        <div class="logo-name">PITBIT OS</div>
+        <div class="logo-sub">Утилита для управления<br>и настройки майнерами</div>
+      </div>
+    </div>
+    <div class="hdr-icons">
+      <div class="hdr-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" stroke-linecap="round"/></svg></div>
+      <div class="hdr-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35" stroke-linecap="round"/></svg></div>
+      <div class="hdr-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke-linecap="round"/></svg></div>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="body">
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <button class="scan-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 21V9" stroke-linecap="round"/></svg>
+        Scan button
+      </button>
+      <div class="stat-card">
+        <div class="stat-lbl">Всего устройств</div>
+        <div class="stat-val">100</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-lbl">Общая мощность</div>
+        <div class="stat-val accent">12 PH/s</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-lbl">Активных локаций</div>
+        <div class="stat-val" style="font-size:16px">4</div>
+      </div>
+
+      <div class="sb-spacer"></div>
+
+      <div class="sb-title">Быстрый доступ</div>
+      <button class="nav-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01" stroke-linecap="round"/></svg>
+        Помощь и поддержка
+      </button>
+      <button class="nav-btn" style="margin-bottom:10px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v3M12 20v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M1 12h3M20 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12" stroke-linecap="round"/></svg>
+        Настройка системы
+      </button>
+      <div class="ver-card">
+        <div class="ver-lbl">Версия программы</div>
+        <div class="ver-val">v1.0.0 - Classic</div>
+        <div class="ver-desc">Классический интерфейс с акцентом на удобство навигации и быстрый доступ к функциям.</div>
+        <span class="ver-upd">Доступно обновление</span>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+      <div class="content-inner">
+
+        <!-- Locations -->
+        <div class="sec-hdr">
+          <span class="sec-title">Locations</span>
+          <button class="btn-sec">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
+            New location
+          </button>
+        </div>
+
+        <div class="loc-grid">
+
+          <!-- Card 1 — Warning -->
+          <div class="loc-card">
+            <div class="lc-top">
+              <div class="lc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#00BC7D" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="lc-name">Дата-центр Санкт-Петербург</div>
+              <div class="lc-status"><span class="lc-dot" style="background:var(--warn)"></span><span class="lc-status-txt">Предупреждение</span></div>
+              <div class="lc-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            </div>
+            <div class="lc-bot">
+              <div class="lc-metrics">
+                <div><div class="lc-m-lbl">Устройства</div><div class="lc-m-val">12</div></div>
+                <div><div class="lc-m-lbl">Мощность</div><div class="lc-m-val">1,52 PH/s</div></div>
+                <div><div class="lc-m-lbl">Ошибки</div><div class="lc-m-val warn">2</div></div>
+                <div><div class="lc-m-lbl">Офлайн</div><div class="lc-m-val">0</div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2 — Active -->
+          <div class="loc-card">
+            <div class="lc-top">
+              <div class="lc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#00BC7D" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="lc-name">Майнинг-центр Москва</div>
+              <div class="lc-status"><span class="lc-dot" style="background:var(--green)"></span><span class="lc-status-txt">Активно</span></div>
+              <div class="lc-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            </div>
+            <div class="lc-bot">
+              <div class="lc-metrics">
+                <div><div class="lc-m-lbl">Устройства</div><div class="lc-m-val">24</div></div>
+                <div><div class="lc-m-lbl">Мощность</div><div class="lc-m-val">3,04 PH/s</div></div>
+                <div><div class="lc-m-lbl">Ошибки</div><div class="lc-m-val">0</div></div>
+                <div><div class="lc-m-lbl">Офлайн</div><div class="lc-m-val">0</div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3 — Error -->
+          <div class="loc-card">
+            <div class="lc-top">
+              <div class="lc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#FB2C36" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M15 9l-6 6M9 9l6 6" stroke-linecap="round"/></svg></div>
+              <div class="lc-name">Майнинг-центр Сочи</div>
+              <div class="lc-status"><span class="lc-dot" style="background:var(--err)"></span><span class="lc-status-txt">Ошибка</span></div>
+              <div class="lc-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            </div>
+            <div class="lc-bot">
+              <div class="lc-metrics">
+                <div><div class="lc-m-lbl">Устройства</div><div class="lc-m-val">18</div></div>
+                <div><div class="lc-m-lbl">Мощность</div><div class="lc-m-val err">0 PH/s</div></div>
+                <div><div class="lc-m-lbl">Ошибки</div><div class="lc-m-val err">5</div></div>
+                <div><div class="lc-m-lbl">Офлайн</div><div class="lc-m-val err">3</div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 4 -->
+          <div class="loc-card">
+            <div class="lc-top">
+              <div class="lc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#00BC7D" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="lc-name">Майнинг-центр Казань</div>
+              <div class="lc-status"><span class="lc-dot" style="background:var(--green)"></span><span class="lc-status-txt">Активно</span></div>
+              <div class="lc-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            </div>
+            <div class="lc-bot">
+              <div class="lc-metrics">
+                <div><div class="lc-m-lbl">Устройства</div><div class="lc-m-val">20</div></div>
+                <div><div class="lc-m-lbl">Мощность</div><div class="lc-m-val">2,60 PH/s</div></div>
+                <div><div class="lc-m-lbl">Ошибки</div><div class="lc-m-val">0</div></div>
+                <div><div class="lc-m-lbl">Офлайн</div><div class="lc-m-val">1</div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 5 -->
+          <div class="loc-card">
+            <div class="lc-top">
+              <div class="lc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#00BC7D" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="lc-name">Дата-центр Новосибирск</div>
+              <div class="lc-status"><span class="lc-dot" style="background:var(--warn)"></span><span class="lc-status-txt">Предупреждение</span></div>
+              <div class="lc-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            </div>
+            <div class="lc-bot">
+              <div class="lc-metrics">
+                <div><div class="lc-m-lbl">Устройства</div><div class="lc-m-val">16</div></div>
+                <div><div class="lc-m-lbl">Мощность</div><div class="lc-m-val">1,88 PH/s</div></div>
+                <div><div class="lc-m-lbl">Ошибки</div><div class="lc-m-val warn">1</div></div>
+                <div><div class="lc-m-lbl">Офлайн</div><div class="lc-m-val">0</div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 6 -->
+          <div class="loc-card">
+            <div class="lc-top">
+              <div class="lc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#00BC7D" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="lc-name">Майнинг-центр Екатеринбург</div>
+              <div class="lc-status"><span class="lc-dot" style="background:var(--green)"></span><span class="lc-status-txt">Активно</span></div>
+              <div class="lc-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            </div>
+            <div class="lc-bot">
+              <div class="lc-metrics">
+                <div><div class="lc-m-lbl">Устройства</div><div class="lc-m-val">10</div></div>
+                <div><div class="lc-m-lbl">Мощность</div><div class="lc-m-val">1,22 PH/s</div></div>
+                <div><div class="lc-m-lbl">Ошибки</div><div class="lc-m-val">0</div></div>
+                <div><div class="lc-m-lbl">Офлайн</div><div class="lc-m-val">0</div></div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /loc-grid -->
+
+        <!-- History panel -->
+        <div class="hist-panel">
+          <div class="hist-hdr">
+            <div class="hist-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3" stroke-linecap="round"/></svg>
+              История операций
+            </div>
+            <span class="hist-showall">Показать все</span>
+          </div>
+          <div class="hist-rows">
+            <div class="hist-row hi">
+              <div class="hi-icon" style="background:rgba(0,188,125,0.18)"><svg viewBox="0 0 24 24" fill="none" stroke="#00BC7D" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="hi-info"><div class="hi-name">Майнинг-центр Москва</div><div class="hi-sub">Обновление ПО</div></div>
+              <div class="hi-right"><div class="hi-badge hi-up">↑ +12%</div><div class="hi-time">5 мин назад</div></div>
+            </div>
+            <div class="hist-row lo">
+              <div class="hi-icon" style="background:rgba(251,44,54,0.12)"><svg viewBox="0 0 24 24" fill="none" stroke="#FB2C36" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01" stroke-linecap="round"/></svg></div>
+              <div class="hi-info"><div class="hi-name">Майнинг-центр Сочи</div><div class="hi-sub">Обновление ПО</div></div>
+              <div class="hi-right"><div class="hi-badge hi-down">↓ -20%</div><div class="hi-time">3 часа назад</div></div>
+            </div>
+            <div class="hist-row lo">
+              <div class="hi-icon" style="background:rgba(48,148,182,0.12)"><svg viewBox="0 0 24 24" fill="none" stroke="#3094B6" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="hi-info"><div class="hi-name">Майнинг-центр Казань</div><div class="hi-sub">Обновление ПО</div></div>
+              <div class="hi-right"><div class="hi-badge hi-up">↑ +8%</div><div class="hi-time">1 час назад</div></div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /content-inner -->
+    </div><!-- /content -->
+
+  </div><!-- /body -->
+</div><!-- /win -->
+
+</body>
+</html>

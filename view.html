@@ -130,6 +130,7 @@
 
 <script>
 const NOTION_LOAD_URL = 'https://n8n.pitbit.space/webhook/pitbit-dashboard-load';
+const DASHBOARD_SECRET = 'BmCncXrGfRoeqeL1ny3SS0_ZJuL703wq';
 
 const PLATFORMS = [
   { id:'ig',  name:'Instagram',  icon:'📸', color:'#E1306C' },
@@ -193,7 +194,7 @@ async function loadData() {
   document.getElementById('periodBadge').textContent = `${dateFrom} — ${dateTo}`;
 
   try {
-    const res = await fetch(`${NOTION_LOAD_URL}?period=${currentPeriod}&date_from=${dateFrom}&date_to=${dateTo}`);
+    const res = await fetch(`${NOTION_LOAD_URL}?period=${currentPeriod}&date_from=${dateFrom}&date_to=${dateTo}`, { headers: { 'X-Dashboard-Secret': DASHBOARD_SECRET } });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const json = await res.json();
 

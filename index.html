@@ -821,7 +821,7 @@ async function syncToNotion(d) {
   try {
     const res = await fetch(NOTION_SAVE_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'X-Dashboard-Secret': DASHBOARD_SECRET },
       body: JSON.stringify({ period: currentPeriod, dateFrom, dateTo, periodLabel: getPeriodLabel(), data: d })
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -854,7 +854,9 @@ async function syncFromNotion(forceDateFrom, forceDateTo) {
   if (!dateFrom || !dateTo) return;
   if (syncEl) syncEl.textContent = '☁️ Синхронизация...';
   try {
-    const res = await fetch(`${NOTION_LOAD_URL}?period=${currentPeriod}&date_from=${dateFrom}&date_to=${dateTo}`);
+    const res = await fetch(`${NOTION_LOAD_URL}?period=${currentPeriod}&date_from=${dateFrom}&date_to=${dateTo}`, {
+      headers: { 'X-Dashboard-Secret': DASHBOARD_SECRET }
+    });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const json = await res.json();
     if (json.found && json.data) {
@@ -1308,6 +1310,8 @@ const N8N_WEBHOOK_URL   = 'https://n8n.pitbit.space/webhook/pitbit-smm-data';
 const NOTION_REPORT_URL = 'https://n8n.pitbit.space/webhook/pitbit-notion-report';
 const NOTION_LOAD_URL   = 'https://n8n.pitbit.space/webhook/pitbit-dashboard-load';
 const NOTION_SAVE_URL   = 'https://n8n.pitbit.space/webhook/pitbit-dashboard-save';
+const TELEGRAM_SEND_URL = 'https://n8n.pitbit.space/webhook/pitbit-telegram-send';
+const DASHBOARD_SECRET  = 'BmCncXrGfRoeqeL1ny3SS0_ZJuL703wq';
 
 async function loadFromN8n() {
   const btn = document.getElementById('btn-n8n');
@@ -1553,9 +1557,7 @@ function renderInfluencerTotals() {
     </div>`;
 }
 
-// ===================== PDF → TELEGRAM =====================
-const TG_BOT_TOKEN = '8971888333:AAG76SRiWoJ1bMIcQQvCz2Cj5Aw81mUL6eo';
-const TG_CHAT_ID   = '-1003926120756';
+// ===================== PDF → TELEGRAM (через n8n, без токена на клиенте) =====================
 
 function buildReportHtml() {
   const dateFrom = document.getElementById('date-from').value || '—';
@@ -1757,18 +1759,18 @@ async function sendTelegramReport() {
       `\n\n📋 Полный отчёт: https://nafanya438-cmd.github.io/smm-dashboard/view.html`;
 
     saveLabel.textContent = 'Отправляем в Telegram...';
-    const tgRes = await fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`, {
+    const tgRes = await fetch(TELEGRAM_SEND_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: TG_CHAT_ID, text: tgText })
+      headers: { 'Content-Type': 'application/json', 'X-Dashboard-Secret': DASHBOARD_SECRET },
+      body: JSON.stringify({ text: tgText })
     });
     const tgData = await tgRes.json();
 
-    if (tgData.ok) {
+    if (tgData.success) {
       saveLabel.textContent = '✅ Отчёт отправлен в Telegram!';
       setTimeout(() => saveLabel.textContent = 'Данные сохранены', 5000);
     } else {
-      throw new Error(tgData.description || 'Telegram error');
+      throw new Error(tgData.error || 'Telegram error');
     }
   } catch (e) {
     saveLabel.textContent = '❌ Ошибка: ' + e.message;
